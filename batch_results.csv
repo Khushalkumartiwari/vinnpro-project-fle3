@@ -1,0 +1,37 @@
+folder,filename,view,expected,predicted,match,reasons
+ObjectOnWB,10_Jun_2026_18_08_34_Back.jpg,back,ALARM,ALARM,YES,"ALARM: foreign object 'bus' detected (conf 0.36) - not a vehicle | ALARM: truck (conf 0.72) is OUTSIDE platform boundary at [(145, 350), (263, 350), (380, 350)]"
+ObjectOnWB,10_Jun_2026_18_08_34_Front.jpg,front,ALARM,ALARM,YES,ALARM: foreign object 'person' detected (conf 0.88) - not a vehicle | ALARM: foreign object 'person' detected (conf 0.56) - not a vehicle | ALARM: foreign object 'person' detected (conf 0.44) - not a vehicle | OK: truck (conf 0.90) within boundary
+ObjectOnWB,10_Jun_2026_18_08_39_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.79) is OUTSIDE platform boundary at [(144, 353), (262, 353), (379, 353)]"
+ObjectOnWB,10_Jun_2026_18_08_39_Front.jpg,front,ALARM,ALARM,YES,ALARM: foreign object 'person' detected (conf 0.82) - not a vehicle | ALARM: foreign object 'person' detected (conf 0.72) - not a vehicle | OK: truck (conf 0.82) within boundary
+ObjectOnWB,10_Jun_2026_18_08_42_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.74) is OUTSIDE platform boundary at [(145, 355), (262, 355), (379, 355)]"
+ObjectOnWB,10_Jun_2026_18_08_42_Front.jpg,front,ALARM,ALARM,YES,ALARM: foreign object 'person' detected (conf 0.83) - not a vehicle | ALARM: foreign object 'person' detected (conf 0.82) - not a vehicle | OK: truck (conf 0.87) within boundary
+PersonOnWB,10_Jun_2026_18_05_55_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.70) is OUTSIDE platform boundary at [(144, 349), (263, 349), (381, 349)]"
+PersonOnWB,10_Jun_2026_18_05_55_Front.jpg,front,ALARM,ALARM,YES,ALARM: foreign object 'person' detected (conf 0.80) - not a vehicle | OK: truck (conf 0.86) within boundary
+PersonOnWB,10_Jun_2026_18_06_20_Back.jpg,back,ALARM,ALARM,YES,"ALARM: foreign object 'person' detected (conf 0.39) - not a vehicle | ALARM: truck (conf 0.78) is OUTSIDE platform boundary at [(146, 356), (265, 356), (383, 356)]"
+PersonOnWB,10_Jun_2026_18_06_20_Front.jpg,front,ALARM,ALARM,YES,ALARM: foreign object 'person' detected (conf 0.81) - not a vehicle | OK: truck (conf 0.74) within boundary
+VehicleBackOutSideWB,10_Jun_2026_18_04_23_Back.jpg,back,ALARM,OK,NO,"OK: platform empty, nothing detected"
+VehicleBackOutSideWB,10_Jun_2026_18_04_23_Front.jpg,front,ALARM,OK,NO,OK: truck (conf 0.82) within boundary
+VehicleBackOutSideWB,10_Jun_2026_18_04_28_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.42) is OUTSIDE platform boundary at [(54, 423), (208, 423), (362, 423)]"
+VehicleBackOutSideWB,10_Jun_2026_18_04_28_Front.jpg,front,ALARM,OK,NO,OK: truck (conf 0.71) within boundary
+VehicleBackOutSideWB,10_Jun_2026_18_05_03_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.75) is OUTSIDE platform boundary at [(0, 222)]"
+VehicleBackOutSideWB,10_Jun_2026_18_05_03_Front.jpg,front,ALARM,ALARM,YES,ALARM: foreign object 'person' detected (conf 0.40) - not a vehicle | OK: truck (conf 0.76) within boundary
+VehicleBackOutSideWB,10_Jun_2026_18_05_06_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.72) is OUTSIDE platform boundary at [(0, 223)]"
+VehicleBackOutSideWB,10_Jun_2026_18_05_06_Front.jpg,front,ALARM,ALARM,YES,ALARM: foreign object 'person' detected (conf 0.42) - not a vehicle | OK: truck (conf 0.79) within boundary
+VehicleFrontOutSideWB,10_Jun_2026_18_10_00_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.82) is OUTSIDE platform boundary at [(251, 266), (327, 266), (404, 266)]"
+VehicleFrontOutSideWB,10_Jun_2026_18_10_00_Front.jpg,front,ALARM,ALARM,YES,ALARM: foreign object 'person' detected (conf 0.63) - not a vehicle
+VehicleFrontOutSideWB,10_Jun_2026_18_10_06_Back.jpg,back,ALARM,ALARM,YES,"ALARM: foreign object 'person' detected (conf 0.68) - not a vehicle | ALARM: foreign object 'person' detected (conf 0.64) - not a vehicle | ALARM: truck (conf 0.75) is OUTSIDE platform boundary at [(257, 264), (330, 264), (403, 264)]"
+VehicleFrontOutSideWB,10_Jun_2026_18_10_06_Front.jpg,front,ALARM,OK,NO,"OK: platform empty, nothing detected"
+VehicleFrontOutSideWB,10_Jun_2026_18_10_17_Back.jpg,back,ALARM,ALARM,YES,"ALARM: foreign object 'person' detected (conf 0.82) - not a vehicle | ALARM: foreign object 'person' detected (conf 0.67) - not a vehicle | ALARM: foreign object 'dog' detected (conf 0.37) - not a vehicle | ALARM: truck (conf 0.79) is OUTSIDE platform boundary at [(256, 266), (330, 266), (404, 266)]"
+VehicleFrontOutSideWB,10_Jun_2026_18_10_17_Front.jpg,front,ALARM,OK,NO,"OK: platform empty, nothing detected"
+VehicleFrontOutSideWB,10_Jun_2026_18_23_02_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.82) is OUTSIDE platform boundary at [(198, 306), (294, 306), (391, 306)]"
+VehicleFrontOutSideWB,10_Jun_2026_18_23_02_Front.jpg,front,ALARM,OK,NO,OK: truck (conf 0.80) within boundary
+VehicleFrontOutSideWB,10_Jun_2026_18_23_32_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.80) is OUTSIDE platform boundary at [(253, 265), (327, 265), (400, 265)]"
+VehicleFrontOutSideWB,10_Jun_2026_18_23_32_Front.jpg,front,ALARM,OK,NO,OK: truck (conf 0.66) within boundary
+VehicleFrontOutSideWB,10_Jun_2026_18_23_42_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.80) is OUTSIDE platform boundary at [(253, 264), (327, 264), (400, 264)]"
+VehicleFrontOutSideWB,10_Jun_2026_18_23_42_Front.jpg,front,ALARM,OK,NO,OK: truck (conf 0.60) within boundary
+VehicleFrontOutSideWB,10_Jun_2026_18_23_48_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.71) is OUTSIDE platform boundary at [(253, 264), (327, 264), (401, 264)]"
+VehicleFrontOutSideWB,10_Jun_2026_18_23_48_Front.jpg,front,ALARM,OK,NO,OK: truck (conf 0.72) within boundary
+VehicleFrontOutSideWB,10_Jun_2026_18_24_30_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.80) is OUTSIDE platform boundary at [(180, 324), (283, 324), (385, 324)]"
+VehicleFrontOutSideWB,10_Jun_2026_18_24_30_Front.jpg,front,ALARM,OK,NO,OK: truck (conf 0.87) within boundary
+VehicleFrontOutSideWB,10_Jun_2026_18_24_43_Back.jpg,back,ALARM,ALARM,YES,"ALARM: truck (conf 0.60) is OUTSIDE platform boundary at [(179, 329), (282, 329), (385, 329)]"
+VehicleFrontOutSideWB,10_Jun_2026_18_24_43_Front.jpg,front,ALARM,ALARM,YES,ALARM: foreign object 'person' detected (conf 0.37) - not a vehicle | OK: truck (conf 0.81) within boundary

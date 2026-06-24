@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dharam Katta Monitor</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --alarm: #ff3b30; --ok: #30d158; --accent: #0a84ff;
+      --bg: #0a0e1a; --card: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.08); --text: #f0f4ff; --muted: #8892aa;
+    }
+    body { font-family: "Inter", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    .bg-layer { position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(10,132,255,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse 60% 50% at 80% 90%, rgba(48,209,88,0.07) 0%, transparent 60%);
+      animation: bgPulse 8s ease-in-out infinite alternate; }
+    @keyframes bgPulse { 0%{opacity:1} 100%{opacity:0.6} }
+    .bg-grid { position: fixed; inset: 0; z-index: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px; }
+    .page { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; padding: 32px 20px 60px; }
+    .header { text-align: center; margin-bottom: 36px; }
+    .badge { display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(10,132,255,0.15); border: 1px solid rgba(10,132,255,0.3);
+      border-radius: 99px; padding: 6px 16px; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.08em; color: #60aaff; margin-bottom: 16px; text-transform: uppercase; }
+    .badge-dot { width: 7px; height: 7px; background: #0a84ff; border-radius: 50%; animation: blink 1.4s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    h1 { font-size: clamp(24px,5vw,38px); font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #f0f4ff 0%, #8892aa 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; }
+    .subtitle { color: var(--muted); font-size: 15px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 28px; backdrop-filter: blur(20px); margin-bottom: 24px; }
+    .cam-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+    .cam-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    .cam-btn { display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px 20px; border-radius: 12px; border: 1px solid var(--border);
+      background: transparent; color: var(--muted); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; }
+    .cam-btn:hover { border-color: rgba(10,132,255,0.4); color: var(--text); }
+    .cam-btn.active { background: rgba(10,132,255,0.15); border-color: rgba(10,132,255,0.5);
+      color: #60aaff; box-shadow: 0 0 20px rgba(10,132,255,0.15); }
+    .cam-btn svg { width: 20px; height: 20px; }
+    #view-select { display: none; }
+    .drop-zone { border: 2px dashed var(--border); border-radius: 14px; padding: 36px 20px;
+      text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 20px; position: relative; }
+    .drop-zone:hover, .drop-zone.dragover { border-color: rgba(10,132,255,0.5); background: rgba(10,132,255,0.05); }
+    .drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .drop-icon { font-size: 36px; margin-bottom: 10px; }
+    .drop-text { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .drop-sub { font-size: 13px; color: var(--muted); }
+    .drop-filename { margin-top: 12px; font-size: 13px; font-weight: 600; color: #60aaff; display: none; }
+    .submit-btn { width: 100%; padding: 15px;
+      background: linear-gradient(135deg, #0a84ff, #005ecb); color: white; border: none;
+      border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: all 0.2s; box-shadow: 0 4px 20px rgba(10,132,255,0.3); }
+    .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(10,132,255,0.4); }
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; text-align: center; }
+    .stat-val { font-size: 22px; font-weight: 800;
+      background: linear-gradient(135deg, #f0f4ff, #8892aa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .result-card { border-radius: 20px; overflow: hidden; border: 1px solid var(--border); }
+    .result-header { padding: 20px 24px; display: flex; align-items: center; gap: 14px; }
+    .result-header.alarm { background: linear-gradient(135deg, rgba(255,59,48,0.2), rgba(255,59,48,0.05));
+      border-bottom: 1px solid rgba(255,59,48,0.2); animation: alarmPulse 1s ease-in-out 3; }
+    .result-header.ok { background: linear-gradient(135deg, rgba(48,209,88,0.15), rgba(48,209,88,0.03));
+      border-bottom: 1px solid rgba(48,209,88,0.2); }
+    @keyframes alarmPulse {
+      0%,100%{background:linear-gradient(135deg,rgba(255,59,48,0.2),rgba(255,59,48,0.05))}
+      50%{background:linear-gradient(135deg,rgba(255,59,48,0.4),rgba(255,59,48,0.1))} }
+    .status-icon { width: 48px; height: 48px; border-radius: 12px; display: flex;
+      align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+    .status-icon.alarm { background: rgba(255,59,48,0.2); }
+    .status-icon.ok { background: rgba(48,209,88,0.2); }
+    .status-title { font-size: 22px; font-weight: 800; }
+    .status-title.alarm { color: #ff6b63; }
+    .status-title.ok { color: #30d158; }
+    .status-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .result-body { background: rgba(0,0,0,0.2); }
+    .reasons-list { padding: 16px 24px; border-bottom: 1px solid var(--border); }
+    .reason-item { display: flex; align-items: flex-start; gap: 10px;
+      font-size: 14px; color: var(--muted); padding: 5px 0; }
+    .reason-item::before { content: "›"; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+    .result-img-wrap { padding: 16px; }
+    .result-img-wrap img { width: 100%; border-radius: 10px; display: block; }
+    .error-box { background: rgba(255,59,48,0.1); border: 1px solid rgba(255,59,48,0.3);
+      border-radius: 12px; padding: 16px 20px; color: #ff6b63; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="bg-layer"></div>
+  <div class="bg-grid"></div>
+  <div class="page">
+    <div class="header">
+      <div class="badge"><span class="badge-dot"></span> Live Detection</div>
+      <h1>Dharam Katta Monitor</h1>
+      <p class="subtitle">AI-powered vehicle boundary detection for weighbridge safety</p>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val">YOLOv8</div><div class="stat-lbl">Detection Model</div></div>
+      <div class="stat"><div class="stat-val">2</div><div class="stat-lbl">Camera Views</div></div>
+      <div class="stat"><div class="stat-val">Real-time</div><div class="stat-lbl">Analysis</div></div>
+    </div>
+    <div class="card">
+      <form method="POST" enctype="multipart/form-data" id="mainForm">
+        <div class="cam-label">Select Camera View</div>
+        <div class="cam-toggle">
+          <button type="button" class="cam-btn" id="btn-back" onclick="setView(event,'back')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="12" cy="13" r="3"/></svg>
+            Back Camera
+          </button>
+          <button type="button" class="cam-btn" id="btn-front" onclick="setView(event,'front')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="12" cy="13" r="3"/></svg>
+            Front Camera
+          </button>
+        </div>
+        <select name="view" id="view-select">
+          <option value="back">back</option>
+          <option value="front">front</option>
+        </select>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" name="image" accept="image/*" id="fileInput" required>
+          <div class="drop-icon">📷</div>
+          <div class="drop-text">Drop image here or click to browse</div>
+          <div class="drop-sub">JPG, PNG supported</div>
+          <div class="drop-filename" id="dropFilename"></div>
+        </div>
+        <button type="submit" class="submit-btn">⚡ Run Boundary Check</button>
+      </form>
+    </div>
+    {% if result %}
+      {% if result.error %}
+        <div class="error-box">⚠ {{ result.error }}</div>
+      {% else %}
+        <div class="result-card">
+          <div class="result-header {{ 'alarm' if result.alarm else 'ok' }}">
+            <div class="status-icon {{ 'alarm' if result.alarm else 'ok' }}">
+              {{ '🚨' if result.alarm else '✅' }}
+            </div>
+            <div>
+              <div class="status-title {{ 'alarm' if result.alarm else 'ok' }}">
+                {{ 'ALARM — Boundary Violation' if result.alarm else 'OK — Vehicle Clear' }}
+              </div>
+              <div class="status-sub">{{ result.view | upper }} camera</div>
+            </div>
+          </div>
+          <div class="result-body">
+            <div class="reasons-list">
+              {% for r in result.reasons %}
+                <div class="reason-item">{{ r }}</div>
+              {% endfor %}
+            </div>
+            <div class="result-img-wrap">
+              <img src="{{ result.image_url }}" alt="Detection result">
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+  <script>
+    var lastView = "{{ result.view if result and not result.error else 'back' }}";
+    function setView(e, v) {
+      document.getElementById("view-select").value = v;
+      document.getElementById("btn-back").classList.toggle("active", v === "back");
+      document.getElementById("btn-front").classList.toggle("active", v === "front");
+      lastView = v;
+    }
+    // Set active on load
+    document.getElementById("btn-" + lastView).classList.add("active");
+    document.getElementById("view-select").value = lastView;
+
+    // File drop
+    var fileInput = document.getElementById("fileInput");
+    var dropFilename = document.getElementById("dropFilename");
+    var dropZone = document.getElementById("dropZone");
+    fileInput.addEventListener("change", function() {
+      if (fileInput.files[0]) {
+        dropFilename.textContent = "✓ " + fileInput.files[0].name;
+        dropFilename.style.display = "block";
+        dropZone.style.borderColor = "rgba(10,132,255,0.5)";
+      }
+    });
+    dropZone.addEventListener("dragover", function(e) { e.preventDefault(); dropZone.classList.add("dragover"); });
+    dropZone.addEventListener("dragleave", function() { dropZone.classList.remove("dragover"); });
+    dropZone.addEventListener("drop", function(e) {
+      e.preventDefault(); dropZone.classList.remove("dragover");
+      if (e.dataTransfer.files[0]) {
+        fileInput.files = e.dataTransfer.files;
+        dropFilename.textContent = "✓ " + e.dataTransfer.files[0].name;
+        dropFilename.style.display = "block";
+      }
+    });
+
+    // Alarm sound
+    function playAlarm() {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      for (var i = 0; i < 6; i++) {
+        (function(i) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = "sawtooth";
+          osc.connect(gain); gain.connect(ctx.destination);
+          var t0 = ctx.currentTime + i * 0.45;
+          osc.frequency.setValueAtTime(700, t0);
+          osc.frequency.linearRampToValueAtTime(1100, t0 + 0.22);
+          osc.frequency.linearRampToValueAtTime(700, t0 + 0.44);
+          gain.gain.setValueAtTime(0, t0);
+          gain.gain.linearRampToValueAtTime(0.3, t0 + 0.05);
+          gain.gain.linearRampToValueAtTime(0.3, t0 + 0.4);
+          gain.gain.linearRampToValueAtTime(0, t0 + 0.44);
+          osc.start(t0); osc.stop(t0 + 0.45);
+        })(i);
+      }
+    }
+    {% if result and not result.error and result.alarm %}
+      // Retry alarm with user gesture fallback
+      document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() { playAlarm(); }, 300);
+      });
+      document.body.addEventListener("click", function alarmOnce() {
+        playAlarm();
+        document.body.removeEventListener("click", alarmOnce);
+      }, {once: true});
+      playAlarm();
+    {% endif %}
+  </script>
+</body>
+</html>

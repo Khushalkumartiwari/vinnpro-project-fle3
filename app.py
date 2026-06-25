@@ -11,11 +11,20 @@ RESULT_DIR = "web_results"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(RESULT_DIR, exist_ok=True)
 
-vehicle_det = VehicleDetector(model_path="yolov8n.pt")
-boundary_dets = {
-    "front": BoundaryDetector(view="front"),
-    "back":  BoundaryDetector(view="back"),
-}
+# Lazy load - dont load at startup, load on first request
+_vehicle_det = None
+_boundary_dets = {}
+
+def get_vehicle_det():
+    global _vehicle_det
+    if _vehicle_det is None:
+        _vehicle_det = VehicleDetector(model_path="yolov8n.pt")
+    return _vehicle_det
+
+def get_boundary_det(view):
+    if view not in _boundary_dets:
+        _boundary_dets[view] = BoundaryDetector(view=view)
+    return _boundary_dets[view]
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -32,8 +41,8 @@ def index():
             if frame is None:
                 result = {"error": "Could not read image. Try JPG or PNG."}
             else:
-                polygon, _ = boundary_dets[view].detect(frame)
-                vehicles, foreign = vehicle_det.detect(frame, view=view)
+                polygon, _ = get_boundary_det(view).detect(frame)
+                vehicles, foreign = get_vehicle_det().detect(frame, view=view)
                 alarm, reasons = evaluate_frame(polygon, vehicles, foreign, margin_px=10)
                 annotated = annotate(frame, polygon, vehicles, foreign, alarm)
                 result_filename = f"{uid}_result.jpg"
@@ -53,5 +62,4 @@ def serve_result(filename):
     return send_from_directory(RESULT_DIR, filename)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5050))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, port=5050)

@@ -12,7 +12,9 @@ MIN_AREA_FRACTION = 0.01
 
 class VehicleDetector:
     def __init__(self, model_path="yolov8n.pt", conf=0.20, device=None):
+        import torch
         self.model = YOLO(model_path)
+        self.model.to("cpu")
         self.conf = conf
         self.device = device
 

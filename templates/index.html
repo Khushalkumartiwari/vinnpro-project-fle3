@@ -152,6 +152,25 @@
               <div class="status-sub">{{ result.view | upper }} camera</div>
             </div>
           </div>
+          {% if result.alarm %}
+          <div style="padding:12px 24px;border-bottom:1px solid rgba(255,59,48,0.2)">
+            <button onclick="playAlarm()" style="
+              background:rgba(255,59,48,0.15);
+              border:1px solid rgba(255,59,48,0.4);
+              color:#ff6b63;
+              padding:8px 20px;
+              border-radius:8px;
+              font-size:14px;
+              font-weight:600;
+              cursor:pointer;
+              letter-spacing:0.02em;">
+              🔔 Play Alarm Sound
+            </button>
+            <span style="font-size:12px;color:#8892aa;margin-left:10px;">
+              Click if alarm did not play automatically
+            </span>
+          </div>
+          {% endif %}
           <div class="result-body">
             <div class="reasons-list">
               {% for r in result.reasons %}
@@ -200,38 +219,88 @@
       }
     });
 
-    // Alarm sound
+    // Alarm sound - robust version for all browsers
+    var alarmCtx = null;
+    function getCtx() {
+      if (!alarmCtx || alarmCtx.state === "closed") {
+        alarmCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (alarmCtx.state === "suspended") {
+        alarmCtx.resume();
+      }
+      return alarmCtx;
+    }
+
+    function playBeep(ctx, startTime, freq1, freq2, duration) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = "square";
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(freq1, startTime);
+      osc.frequency.linearRampToValueAtTime(freq2, startTime + duration * 0.5);
+      osc.frequency.linearRampToValueAtTime(freq1, startTime + duration);
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.linearRampToValueAtTime(0.4, startTime + 0.01);
+      gain.gain.setValueAtTime(0.4, startTime + duration - 0.05);
+      gain.gain.linearRampToValueAtTime(0.001, startTime + duration);
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    }
+
     function playAlarm() {
-      var ctx = new (window.AudioContext || window.webkitAudioContext)();
-      for (var i = 0; i < 6; i++) {
-        (function(i) {
-          var osc = ctx.createOscillator();
-          var gain = ctx.createGain();
-          osc.type = "sawtooth";
-          osc.connect(gain); gain.connect(ctx.destination);
-          var t0 = ctx.currentTime + i * 0.45;
-          osc.frequency.setValueAtTime(700, t0);
-          osc.frequency.linearRampToValueAtTime(1100, t0 + 0.22);
-          osc.frequency.linearRampToValueAtTime(700, t0 + 0.44);
-          gain.gain.setValueAtTime(0, t0);
-          gain.gain.linearRampToValueAtTime(0.3, t0 + 0.05);
-          gain.gain.linearRampToValueAtTime(0.3, t0 + 0.4);
-          gain.gain.linearRampToValueAtTime(0, t0 + 0.44);
-          osc.start(t0); osc.stop(t0 + 0.45);
-        })(i);
+      try {
+        var ctx = getCtx();
+        var now = ctx.currentTime;
+        // 8 rapid beeps
+        for (var i = 0; i < 8; i++) {
+          playBeep(ctx, now + i * 0.35, 880, 1320, 0.3);
+        }
+        console.log("Alarm played at", now);
+      } catch(e) {
+        console.error("Audio error:", e);
+        // Ultimate fallback - system beep via alert
+        // alert("⚠️ ALARM! Vehicle boundary violation detected!");
       }
     }
+
+    // Test audio on page load silently
+    function unlockAudio() {
+      try {
+        var ctx = getCtx();
+        var buf = ctx.createBuffer(1, 1, 22050);
+        var src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+      } catch(e) {}
+    }
     {% if result and not result.error and result.alarm %}
-      // Retry alarm with user gesture fallback
-      document.addEventListener("DOMContentLoaded", function() {
-        setTimeout(function() { playAlarm(); }, 300);
-      });
-      document.body.addEventListener("click", function alarmOnce() {
-        playAlarm();
-        document.body.removeEventListener("click", alarmOnce);
-      }, {once: true});
-      playAlarm();
+      window.alarmPending = true;
+      unlockAudio();
+    {% else %}
+      window.alarmPending = false;
     {% endif %}
+
+    // Try immediately (works if page was loaded via form submit = user gesture)
+    if (window.alarmPending) {
+      try { playAlarm(); } catch(e) {}
+    }
+
+    // Also trigger on ANY interaction in case browser blocked autoplay
+    if (window.alarmPending) {
+      var alarmTriggered = false;
+      function triggerAlarmOnce() {
+        if (!alarmTriggered) {
+          alarmTriggered = true;
+          playAlarm();
+        }
+      }
+      document.addEventListener("click",     triggerAlarmOnce, {once: true});
+      document.addEventListener("keydown",   triggerAlarmOnce, {once: true});
+      document.addEventListener("touchstart",triggerAlarmOnce, {once: true});
+      document.addEventListener("mousemove", triggerAlarmOnce, {once: true});
+    }
   </script>
 </body>
 </html>
